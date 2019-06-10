@@ -1,9 +1,13 @@
 package com.tkytomak.stormy;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.io.IOException;
 
@@ -27,6 +31,9 @@ public class MainActivity extends AppCompatActivity {
         String forecastURL = "https://api.darksky.net/forecast/"
                 + apiKey + "/" + latitude + "," + longitude;
 
+        if (isNetworkAvailable()) {
+
+        }
         OkHttpClient client = new OkHttpClient();
 
         Request request = new Request.Builder()
@@ -54,6 +61,21 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    private boolean isNetworkAvailable() {
+        ConnectivityManager manager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = manager.getActiveNetworkInfo();
+
+        boolean isAvailable = false;
+        if (networkInfo != null && networkInfo.isConnected()) {
+            isAvailable = true;
+        }
+        else {
+            Toast.makeText(this, getString(R.string.network_unavailable_message),
+                Toast.LENGTH_LONG).show();
+        }
+        return isAvailable;
     }
 
     private void alertUserAboutError() {
