@@ -1,5 +1,6 @@
 package com.tkytomak.stormy;
 
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -22,9 +23,9 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         String apiKey = getString(R.string.apiKey);
         double latitude = 37.8267;
-        double longtitude = -122.4233;
+        double longitude = -122.4233;
         String forecastURL = "https://api.darksky.net/forecast/"
-                + apiKey + "/" + latitude + "," + longtitude;
+                + apiKey + "/" + latitude + "," + longitude;
 
         OkHttpClient client = new OkHttpClient();
 
@@ -41,13 +42,22 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 try {
+                    Log.v(TAG, response.body().string());
                     if (response.isSuccessful()) {
-                        Log.v(TAG, response.body().string());
+
+                    }
+                    else {
+                        alertUserAboutError();
                     }
                 } catch (IOException e) {
                     Log.e(TAG, "IO Exception caught: ", e);
                 }
             }
         });
+    }
+
+    private void alertUserAboutError() {
+        AlertDialogFragment dialog = new AlertDialogFragment();
+        dialog.show(getFragmentManager(), "error_dialog");
     }
 }
