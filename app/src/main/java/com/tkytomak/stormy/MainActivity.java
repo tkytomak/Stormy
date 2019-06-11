@@ -46,21 +46,42 @@ public class MainActivity extends AppCompatActivity {
 
             }
 
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                try {
-                    Log.v(TAG, response.body().string());
-                    if (response.isSuccessful()) {
-
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    try {
+                        String jsonData = response.body().string();
+                        Log.v(TAG, jsonData);
+                        if (response.isSuccessful()) {
+                            currentWeather = getCurrentDetails(jsonData);
+                        } else {
+                            alertUserAboutError();
+                        }
+                    } catch (IOException e) {
+                        Log.e(TAG, "IO Exception caught: ", e);
+                    } catch (JSONException e) {
+                        Log.e(TAG, "JSON Exception caught: ", e);
                     }
-                    else {
-                        alertUserAboutError();
-                    }
-                } catch (IOException e) {
-                    Log.e(TAG, "IO Exception caught: ", e);
                 }
-            }
-        });
+            });
+        }
+    }
+
+    private CurrentWeather getCurrentDetails(String jsonData) throws JSONException{
+            JSONObject forecast = new JSONObject(jsonData);
+            String timeZone = forecast.getString("timezone");
+            JSONObject currently = forecast.getJSONObject("currently");
+            CurrentWeather currentWeather = new CurrentWeather();
+            currentWeather.setHumidity(currently.getDouble("humidity"));
+            currentWeather.setTime(currently.getLong("time"));
+            currentWeather.setIcon(currently.getString("icon"));
+            currentWeather.setLocationLabel("Alcatraz Island, CA");
+            currentWeather.setPrecipChance(currently.getDouble("precipProbability"));
+            currentWeather.setSummary(currently.getString("summary"));
+            currentWeather.setTemperature(currently.getDouble("temperature"));
+            currentWeather.setTimeZone(timeZone);
+
+            Log.i(TAG, "Time: " + currentWeather.getFormattedTime(currentWeather.getTime()));
+            return currentWeather;
     }
 
     private boolean isNetworkAvailable() {
