@@ -6,8 +6,13 @@ import android.net.NetworkInfo;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.method.LinkMovementMethod;
 import android.util.Log;
+import android.widget.TextView;
 import android.widget.Toast;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
 
@@ -21,10 +26,16 @@ public class MainActivity extends AppCompatActivity {
 
     public static final String TAG = MainActivity.class.getSimpleName();
 
+    private CurrentWeather currentWeather;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        TextView darkSky = findViewById(R.id.darkSkyAttribution);
+
+        darkSky.setMovementMethod(LinkMovementMethod.getInstance());
+
         String apiKey = getString(R.string.apiKey);
         double latitude = 37.8267;
         double longitude = -122.4233;
@@ -32,19 +43,17 @@ public class MainActivity extends AppCompatActivity {
                 + apiKey + "/" + latitude + "," + longitude;
 
         if (isNetworkAvailable()) {
+            OkHttpClient client = new OkHttpClient();
 
-        }
-        OkHttpClient client = new OkHttpClient();
+            Request request = new Request.Builder()
+                    .url(forecastURL)
+                    .build();
+            Call call = client.newCall(request);
+            call.enqueue(new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
 
-        Request request = new Request.Builder()
-                .url(forecastURL)
-                .build();
-        Call call = client.newCall(request);
-        call.enqueue(new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-
-            }
+                }
 
                 @Override
                 public void onResponse(Call call, Response response) throws IOException {
