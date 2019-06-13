@@ -1,6 +1,8 @@
 package com.tkytomak.stormy;
 
 import android.content.Context;
+import android.databinding.DataBindingUtil;
+import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.support.v7.app.AlertDialog;
@@ -8,8 +10,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.tkytomak.stormy.databinding.ActivityMainBinding;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -25,16 +30,20 @@ import okhttp3.Response;
 public class MainActivity extends AppCompatActivity {
 
     public static final String TAG = MainActivity.class.getSimpleName();
-
     private CurrentWeather currentWeather;
+
+    private ImageView iconImageView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        final ActivityMainBinding binding = DataBindingUtil.setContentView(MainActivity.this,
+                R.layout.activity_main);
         TextView darkSky = findViewById(R.id.darkSkyAttribution);
 
         darkSky.setMovementMethod(LinkMovementMethod.getInstance());
+
+        iconImageView = findViewById(R.id.iconImageView);
 
         String apiKey = getString(R.string.apiKey);
         double latitude = 37.8267;
@@ -62,6 +71,28 @@ public class MainActivity extends AppCompatActivity {
                         Log.v(TAG, jsonData);
                         if (response.isSuccessful()) {
                             currentWeather = getCurrentDetails(jsonData);
+                            CurrentWeather displayWeather = new CurrentWeather(
+                                currentWeather.getLocationLabel(),
+                                currentWeather.getIcon(),
+                                currentWeather.getTime(),
+                                currentWeather.getTemperature(),
+                                currentWeather.getHumidity(),
+                                currentWeather.getPrecipChance(),
+                                currentWeather.getSummary(),
+                                currentWeather.getTimeZone()
+                            );
+                            displayWeather.setFormattedTime();
+
+                            binding.setWeather(displayWeather);
+
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Drawable drawable = getResources().getDrawable(displayWeather.getIconId());
+                                    iconImageView.setImageDrawable(drawable);
+                                }
+                            });
+
                         } else {
                             alertUserAboutError();
                         }
@@ -89,7 +120,7 @@ public class MainActivity extends AppCompatActivity {
             currentWeather.setTemperature(currently.getDouble("temperature"));
             currentWeather.setTimeZone(timeZone);
 
-            Log.i(TAG, "Time: " + currentWeather.getFormattedTime(currentWeather.getTime()));
+            Log.i(TAG, "Time: " + currentWeather.getFormattedTime());
             return currentWeather;
     }
 

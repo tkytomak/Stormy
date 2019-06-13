@@ -14,6 +14,24 @@ public class CurrentWeather {
     private double precipChance;
     private String summary;
     private String timeZone;
+    private String formattedTime;
+
+    public CurrentWeather(String locationLabel, String icon, long time, double temperature,
+                          double humidity, double precipChance, String summary, String timeZone) {
+        this.locationLabel = locationLabel;
+        this.icon = icon;
+        this.time = time;
+        this.temperature = temperature;
+        this.humidity = humidity;
+        this.precipChance = precipChance;
+        this.summary = summary;
+        this.timeZone = timeZone;
+        this.formattedTime = getFormattedTime(time);
+    }
+
+    public CurrentWeather() {
+
+    }
 
     public String getTimeZone() {
         return timeZone;
@@ -83,13 +101,32 @@ public class CurrentWeather {
         return time;
     }
 
+    public String getFormattedTime() {
+        setFormattedTime(time);
+        return formattedTime;
+    }
+
     public String getFormattedTime(long time) {
+        setFormattedTime(time);
+        return formattedTime;
+    }
+
+    public void setFormattedTime() {
         SimpleDateFormat formatter = new SimpleDateFormat("hh:mm:ss");
 
         formatter.setTimeZone(TimeZone.getTimeZone(timeZone));
 
         Date dateTime = new Date(time * 1000);
-        return formatter.format(dateTime);
+        this.formattedTime = formatter.format(dateTime);
+    }
+
+    public void setFormattedTime(long time) {
+        SimpleDateFormat formatter = new SimpleDateFormat("hh:mm:ss");
+
+        formatter.setTimeZone(TimeZone.getTimeZone(timeZone));
+
+        Date dateTime = new Date(time * 1000);
+        this.formattedTime = formatter.format(dateTime);
     }
 
     public void setTime(long time) {
